@@ -1,0 +1,783 @@
+  if success then
+
+                warn(" game loaded Function executed successfully")
+
+             
+                
+            else
+                warn("Error occurred:", err)
+            
+            end
+
+print("game loaded")
+local success, result = pcall(function()
+    repeat
+        task.wait()
+    until game.Players.LocalPlayer ~= nil and game.Players.LocalPlayer.Name ~= nil and
+        game.Players.LocalPlayer:GetMouse() ~= nil
+
+    repeat
+        task.wait()
+    until game:IsLoaded()
+    game:WaitForChild("ReplicatedStorage")
+    game.ReplicatedStorage:WaitForChild("Datas")
+    game.ReplicatedStorage.Datas:WaitForChild(game.Players.LocalPlayer.UserId)
+end)
+if success then
+
+
+
+                warn(" game loaded Function executed successfully")
+
+                
+            else
+                warn("Error occurred:", err)
+            
+            end
+
+task.wait()
+
+
+local stackneeded = true
+local targetted;
+local transformStatus = false
+local autoFarmLoopRunning = false
+local stacked = false
+local flying = false
+
+local charge = false
+local checkValue;
+
+getgenv().dead = false
+getgenv().rebirthed = false
+
+function format_number(number)
+    local suffixes = {"", "K", "M", "B", "T", "QD"}
+    local suffix_index = 1
+
+    while math.abs(number) >= 1000 and suffix_index < #suffixes do
+        number = number / 1000.0
+        suffix_index = suffix_index + 1
+    end
+
+    return string.format("%.2f%s", number, suffixes[suffix_index])
+end
+
+
+function getCheckValue()
+    data = game.ReplicatedStorage.Datas[game.Players.LocalPlayer.UserId]
+    local a = data.Strength.Value
+    local b = data.Energy.Value
+    local c = data.Defense.Value
+    local d = data.Speed.Value
+
+    local smallest = a 
+
+    if b < smallest then
+        smallest = b
+    end
+
+    if c < smallest then
+        smallest = c
+    end
+
+    if d < smallest then
+        smallest = d
+    end
+
+    checkValue = smallest
+    return checkValue
+end
+
+local PaidFormsList = {
+    Evil = {{
+        name = "SSJ2 Kaioken",
+        reqvalue = 50000,
+        endrangevalue = 160000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "LSSJ Kaioken",
+        reqvalue = 160001,
+        endrangevalue = 250000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "Mystic Kaioken",
+        reqvalue = 250001,
+        endrangevalue = 550000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "SSJ5",
+        reqvalue = 550001,
+        endrangevalue = 800000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950469
+    }, {
+        name = "LSSJ3",
+        reqvalue = 800001,
+        endrangevalue = 1000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "SSJG4",
+        reqvalue = 1000001,
+        endrangevalue = 1800000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950465
+    }, {
+        name = "LSSJ4",
+        reqvalue = 1800001,
+        endrangevalue = 3000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "LSSJG",
+        reqvalue = 3000001,
+        endrangevalue = 4000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "Super Broly",
+        reqvalue = 4000000,
+        endrangevalue = 30000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 7837022
+    }, {
+        name = "True God of Destruction",
+        reqvalue = 30000001,
+        endrangevalue = 50000000,
+        alignment = "Evil",
+        rebirthReq = 10,
+        formOwned = false,
+        GamePassID = 9848987
+    }, {
+        name = "SSJB4",
+        reqvalue = 50000001,
+        endrangevalue = 100000000000000000000000,
+        alignment = "Neutral",
+        rebirthReq = 13,
+        formOwned = false,
+        GamePassID = 6950465
+    }, {
+        name = "Blanco",
+        reqvalue = 120000001,
+        endrangevalue = 100000000000000000000000,
+        alignment = "Neutral",
+        rebirthReq = 24,
+        formOwned = false,
+        GamePassID = 676684901
+    }},
+    Good = {{
+        name = "SSJ2 Kaioken",
+        reqvalue = 50000,
+        endrangevalue = 160000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "LSSJ Kaioken",
+        reqvalue = 160001,
+        endrangevalue = 250000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "Mystic Kaioken",
+        reqvalue = 250001,
+        endrangevalue = 550000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950449
+    }, {
+        name = "SSJ5",
+        reqvalue = 550001,
+        endrangevalue = 800000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950469
+    }, {
+        name = "LSSJ3",
+        reqvalue = 800001,
+        endrangevalue = 1000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "SSJG4",
+        reqvalue = 1000001,
+        endrangevalue = 1800000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6950465
+    }, {
+        name = "LSSJ4",
+        reqvalue = 1800001,
+        endrangevalue = 3000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "LSSJG",
+        reqvalue = 3000001,
+        endrangevalue = 4000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 6951002
+    }, {
+        name = "Super Broly",
+        reqvalue = 4000000,
+        endrangevalue = 30000000,
+        alignment = "Neutral",
+        rebirthReq = 0,
+        formOwned = false,
+        GamePassID = 7837022
+    }, {
+        name = "True God of Creation",
+        reqvalue = 30000001,
+        endrangevalue = 50000000,
+        alignment = "Good",
+        rebirthReq = 10,
+        formOwned = false,
+        GamePassID = 9848987
+    }, {
+        name = "SSJB4",
+        reqvalue = 50000001,
+        endrangevalue = 120000000,
+        alignment = "Neutral",
+        rebirthReq = 13,
+        formOwned = false,
+        GamePassID = 6950465
+    }, {
+        name = "Blanco",
+        reqvalue = 120000001,
+        endrangevalue = 100000000000000000000000,
+        alignment = "Neutral",
+        rebirthReq = 24,
+        formOwned = false,
+        GamePassID = 676684901
+    }}
+}
+
+local FormsList = {
+
+    Evil = {{
+        name = "Kaioken",
+        reqvalue = 1000,
+        endrangevalue = 2500,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "FSSJ",
+        reqvalue = 2501,
+        endrangevalue = 6000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ",
+        reqvalue = 6001,
+        endrangevalue = 16000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Kaioken",
+        reqvalue = 16001,
+        endrangevalue = 34000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ2",
+        reqvalue = 34001,
+        endrangevalue = 65000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ2 Majin",
+        reqvalue = 65001,
+        endrangevalue = 95000,
+        alignment = "Evil",
+        rebirthReq = 0
+    }, {
+        name = "SSJ3",
+        reqvalue = 95001,
+        endrangevalue = 140000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "LSSJ",
+        reqvalue = 140001,
+        endrangevalue = 200000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "Mystic",
+        reqvalue = 200001,
+        endrangevalue = 300000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ4",
+        reqvalue = 300001,
+        endrangevalue = 450000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJG",
+        reqvalue = 450001,
+        endrangevalue = 700000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "Corrupt SSJ",
+        reqvalue = 700001,
+        endrangevalue = 1400000,
+        alignment = "Evil",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Rose",
+        reqvalue = 1400001,
+        endrangevalue = 2400000,
+        alignment = "Evil",
+        rebirthReq = 0
+    }, {
+        name = "True Rose",
+        reqvalue = 2400001,
+        endrangevalue = 3000000,
+        alignment = "Evil",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Berserker",
+        reqvalue = 3000001,
+        endrangevalue = 3500000,
+        alignment = "Evil",
+        rebirthReq = 1
+    }, {
+        name = "Dark Rose",
+        reqvalue = 3500001,
+        endrangevalue = 4000000,
+        alignment = "Evil",
+        rebirthReq = 2
+    }, {
+        name = "Evil SSJ",
+        reqvalue = 4000001,
+        endrangevalue = 5000000,
+        alignment = "Evil",
+        rebirthReq = 3
+    }, {
+        name = "Godly SSJ2",
+        reqvalue = 8000001,
+        endrangevalue = 14000000,
+        alignment = "Neutral",
+        rebirthReq = 4
+    }, {
+        name = "Jiren Ultra Instinct",
+        reqvalue = 14000001,
+        endrangevalue = 30000000,
+        alignment = "Evil",
+        rebirthReq = 6
+    }, {
+        name = "God of Destruction",
+        reqvalue = 30000001,
+        endrangevalue = 50000000,
+        alignment = "Evil",
+        rebirthReq = 10
+    }, {
+        name = "SSJR3",
+        reqvalue = 50000001,
+        endrangevalue = 100000000,
+        alignment = "Evil",
+        rebirthReq = 12
+    }, {
+        name = "LBSSJ4",
+        reqvalue = 100000001,
+        endrangevalue = 120000000,
+        alignment = "Good",
+        rebirthReq = 18
+    }, {
+        name = "Ultra Ego",
+        reqvalue = 120000001,
+        endrangevalue = 120000002,
+        alignment = "Evil",
+        rebirthReq = 20
+    }, {
+        name = "Beast",
+        reqvalue = 120000002,
+        endrangevalue = 120000002,
+        alignment = "Neutral",
+        rebirthReq = 24
+    }, {
+        name = "Astral Instinct",
+        reqvalue = 140000001,
+        endrangevalue = 12000000000000000000000000000000000,
+        alignment = "Neutral",
+        rebirthReq = 28
+    }}, -- close evil
+
+    Good = {{
+        name = "Kaioken",
+        reqvalue = 1000,
+        endrangevalue = 2500,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "FSSJ",
+        reqvalue = 2501,
+        endrangevalue = 6000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ",
+        reqvalue = 6001,
+        endrangevalue = 16000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Kaioken",
+        reqvalue = 16001,
+        endrangevalue = 34000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ2",
+        reqvalue = 34001,
+        endrangevalue = 65000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "Spirit SSJ",
+        reqvalue = 65001,
+        endrangevalue = 95000,
+        alignment = "Good",
+        rebirthReq = 0
+    }, {
+        name = "SSJ3",
+        reqvalue = 95001,
+        endrangevalue = 140000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "LSSJ",
+        reqvalue = 140001,
+        endrangevalue = 200000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "Mystic",
+        reqvalue = 200001,
+        endrangevalue = 300000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ4",
+        reqvalue = 300001,
+        endrangevalue = 450000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJG",
+        reqvalue = 450001,
+        endrangevalue = 700000,
+        alignment = "Neutral",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Rage",
+        reqvalue = 700001,
+        endrangevalue = 1200000,
+        alignment = "Good",
+        rebirthReq = 0
+    }, {
+        name = "SSJ Blue",
+        reqvalue = 1200001,
+        endrangevalue = 2200000,
+        alignment = "Good",
+        rebirthReq = 0
+    }, {
+        name = "SSJB Kaioken",
+        reqvalue = 2200001,
+        endrangevalue = 3000000,
+        alignment = "Good",
+        rebirthReq = 0
+    }, {
+        name = "Kefla SSJ2",
+        reqvalue = 3000001,
+        endrangevalue = 3500000,
+        alignment = "Good",
+        rebirthReq = 1
+    }, {
+        name = "Blue Evolution",
+        reqvalue = 3500001,
+        endrangevalue = 5000000,
+        alignment = "Good",
+        rebirthReq = 2
+    }, {
+        name = "Godly SSJ2",
+        reqvalue = 8000001,
+        endrangevalue = 14000000,
+        alignment = "Neutral",
+        rebirthReq = 4
+    }, {
+        name = "Mastered Ultra Instinct",
+        reqvalue = 14000001,
+        endrangevalue = 30000000,
+        alignment = "Good",
+        rebirthReq = 6
+    }, {
+        name = "God of Creation",
+        reqvalue = 30000001,
+        endrangevalue = 50000000,
+        alignment = "Good",
+        rebirthReq = 10
+    }, {
+        name = "SSJB3",
+        reqvalue = 50000001,
+        endrangevalue = 100000000,
+        alignment = "Good",
+        rebirthReq = 12
+    }, {
+        name = "LBSSJ4",
+        reqvalue = 100000001,
+        endrangevalue = 120000001,
+        alignment = "Good",
+        rebirthReq = 18
+    }, {
+        name = "SSJBUI",
+        reqvalue = 120000001,
+        endrangevalue = 120000002,
+        alignment = "Good",
+        rebirthReq = 20
+    }, {
+        name = "Beast",
+        reqvalue = 120000002,
+        endrangevalue = 120000002,
+        alignment = "Neutral",
+        rebirthReq = 24
+    }, {
+
+        name = "Astral Instinct",
+        reqvalue = 140000001,
+        endrangevalue = 12000000000000000000000000000000000,
+        alignment = "Neutral",
+        rebirthReq = 28
+    }}
+}
+
+local quests = {{
+    name = "X Fighter Trainer",
+    nickname = "X Fighter",
+    requiredValue = 0,
+    endRange = 30000,
+    planet = "Earth"
+}, {
+    name = "Klirin",
+    nickname = "Klirin",
+    requiredValue = 30001,
+    endRange = 60000,
+    planet = "Earth"
+}, {
+    name = "Kid Nohag",
+    nickname = "Kid Nohag",
+    requiredValue = 60001,
+    endRange = 74800000000000000000000000000,
+    planet = "Earth"
+}, {
+    name = "Kid Nohag)",
+    nickname = "Kid Nohag",
+    requiredValue = 60001,
+    endRange = 2100000000000000000000,
+    planet = "Earth"
+}}
+
+
+
+local function check1()
+    pcall(function()
+    local checkValue = getCheckValue()
+
+    if checkValue >= 20000000000000 and game.placeId ~= 5151400895 then
+        data = game.ReplicatedStorage.Datas[game.Players.LocalPlayer.UserId]
+        if data.Zeni.Value >= 150000000000 then
+
+            local A_1 = "Vills Planet"
+            local Event = game:GetService("ReplicatedStorage").Package.Events.TP
+            Event:InvokeServer(A_1)
+            tp = true
+            return tp
+        else
+            SelectedQuests = "SSJG Kakata"
+            SelectedMobs1 = "SSJG Kakata"
+
+            tp = false
+            return SelectedQuests, SelectedMobs, tp
+
+        end
+    end
+
+    if checkValue <= 200000000 and game.placeId == 5151400895 then
+
+        if checkValue < 200000000 and game.placeId ~= 3311165597 then
+            local A_1 = "Earth"
+            local Event = game:GetService("ReplicatedStorage").Package.Events.TP
+            Event:InvokeServer(A_1)
+            task.wait(8)
+        end
+    end
+end)
+end
+
+function target()
+    targetted = game.Players.LocalPlayer.name
+
+end
+pcall(function() target() end)
+local function deadcheck(LDCheck)
+    success, err = pcall(function()
+        task.wait()
+        if game.Players.LocalPlayer.Character.Humanoid.Health <= 0 then
+            getgenv().dead = true
+            transformStatus = false
+            autoFarmLoopRunning = false
+            flying = false
+            questneeded = true
+            
+
+        else
+            autoFarmLoopRunning = true
+            getgenv().dead = false
+            
+        end
+    end)
+    if LDCheck then
+        getgenv().stackneeded = false
+        autoFarmLoopRunning = true
+        print("last dead check passed")
+    end
+    if success then
+        warn("Stack loop Function executed successfully with a value of " .. tostring(getgenv().dead))
+      
+        
+    else
+        warn("Error occurred:", err)
+        
+    end
+    return autoFarmLoopRunning, transformStatus, flying
+end
+
+function startgame()
+    pcall(function()
+
+        repeat
+
+            if game.workspace[targetted] then
+                task.wait()
+                local Event = game:GetService("ReplicatedStorage").Package.Events.Start
+                Event:InvokeServer()
+                task.wait()
+
+                local Event = game:GetService("ReplicatedStorage").Package.Events.Start
+                Event:InvokeServer()
+
+                task.wait()
+
+                game.Players.LocalPlayer.PlayerGui.Main.bruh.Disabled = true
+
+                game.Players.LocalPlayer.PlayerGui.Main.bruh.Disabled = false
+
+                task.wait()
+                local Event = game:GetService("ReplicatedStorage").Package.Events.Start
+                Event:InvokeServer()
+
+            end
+        until game.workspace.Living[targetted]
+
+    end)
+
+end
+repeat
+ success, err = pcall(function() 
+local function CheckGamePass(UserId, GamePassID)
+    local MarketplaceService = game:GetService("MarketplaceService")
+    return MarketplaceService:UserOwnsGamePassAsync(UserId, GamePassID)
+end
+
+local userId = game.Players.LocalPlayer.UserId 
+
+for _, form in ipairs(PaidFormsList["Evil"]) do
+
+    form.formOwned = CheckGamePass(userId, form.GamePassID)
+
+end
+
+for _, form in ipairs(PaidFormsList["Good"]) do
+    form.formOwned = CheckGamePass(userId, form.GamePassID)
+end
+
+for _, form in ipairs(PaidFormsList["Good"]) do
+
+    print(string.format("Name: %s, ReqValue: %d, EndRangeValue: %d, Alignment: %s, RebirthReq: %d, FormOwned: %s",
+        form.name, form.reqvalue, form.endrangevalue, form.alignment, form.rebirthReq, tostring(form.formOwned)))
+
+end
+end)
+task.wait()
+until success
+
+local function autostack(stack1)
+    pcall(function()
+        targetted = game.Players.LocalPlayer.name
+        data = game.ReplicatedStorage.Datas[game.Players.LocalPlayer.UserId]
+        if stack1 == true and data.Energy.Value > 8000000 and getgenv().dead == false then
+            task.wait(1)
+
+            game.workspace.Living[targetted].UpperTorso:Destroy()
+            task.wait(5)
+            local Remote = game.ReplicatedStorage.Package.Events['equipskill']
+            local Arguments = {
+                [1] = "Godly SSJ2"
+            }
+            Remote:InvokeServer(unpack(Arguments))
+            local Remote = game.ReplicatedStorage.Package.Events['ta']
+            i = 0
+            repeat
+                Remote:InvokeServer(unpack(Arguments))
+                i = i + 1
+                task.wait()
+            until i == 8
+            task.wait()
+            getgenv().stackneeded = false
+            transformStatus = true
+            autoFarmLoopRunning = true
+            flying = false
+            return transformStatus, autoFarmLoopRunning, flying
+        elseif stack1 == false then
+            getgenv().stackneeded = false
+            transformStatus = true
+            autoFarmLoopRunning = true
+            flying = false
+            return  transformStatus, autoFarmLoo
